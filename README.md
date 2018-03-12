@@ -119,8 +119,8 @@ ref: https://www.cnblogs.com/robnetcn/archive/2012/04/15/2449008.html
 
 ## 为什么大多数语言的数组索引都是从0开始的
 
-
 因为 C 是从0开始的，大多数语言都受C的影响，另外就是C接近硬件，0表示的是偏移量
+
 
 ## 测试与 TDD 如何影响代码设计
 
@@ -145,13 +145,16 @@ ref: http://www.jamesshore.com/Blog/How-Does-TDD-Affect-Design.html
 interface。使用这些方法对于代码的正交性有什么影响吗？使用多重继承和实现多个
 interface有什么区别吗？使用委托和使用继承有什么区别吗？
 
-## Pros and cons of holding domain logic in Stored Procedures
+## 把业务逻辑都放在 Stored Procedures 中的好处和坏处
 
-https://softwareengineering.stackexchange.com/questions/158534/pros-and-cons-of-holding-all-the-business-logic-in-stored-procedures-in-web-appl
+貌似意思是把业务逻辑都写在数据库里，这得多奇葩呀。。
 
-## 为什么 OO 设计论断了业界这么多年？
+ref: https://softwareengineering.stackexchange.com/questions/158534/pros-and-cons-of-holding-all-the-business-logic-in-stored-procedures-in-web-appl
+
+## 为什么 OO 设计垄断了业界这么多年？
 
 ## 你用什么方法来评价你的代码是否设计有问题？
+
 
 # 语言相关问题
 
@@ -169,8 +172,8 @@ Python：GIL、性能慢、2 和 3不兼容
 闭包和类都创建了一个独立的作用域，其中定义的函数都可以访问这个空间内的变量，闭包创建的作用域在函数执行结束之后依然是有效的
 
     function() {
-      var a = 1;
-      console.log(a); // works, -> 1
+        var a = 1;
+        console.log(a); // works, -> 1
     }
     console.log(a); // fails, -> undefined
 
@@ -260,10 +263,94 @@ Pattern Matching 相对于 switch 更加灵活，switch 只能使用常量匹配
 
 预期会有数据不一致，性能问题等
 
-## 为什么数据库把 null 当做一个特殊值来处理？比如说 `Select * From table Where
-Field = null` 不会匹配到含有 null 的行？
+## 为什么数据库把 null 当做一个特殊值来处理？比如说 `Select * From table Where Field = null` 不会匹配到含有 null 的行？
 
 因为 null 表示的是没有值，它不和任何值相等
+
+## ACID 是原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）、持久性（Durability）的缩写，几乎所有的数据库引擎都支持他们，关于这个话题，你了解多少？
+
+一个支持事务（Transaction）的，必需要具有这四种特性，否则在事务过程（Transaction processing）当中无法保证数据的正确性，交易过程极可能达不到交易方的要求。
+
+1. 原子性 整个事务中的所有操作，要么全部完成，要么全部不完成，不可能停滞在中间某个环节。事务在执行过程中发生错误，会被回滚（Rollback）到事务开始前的状态，就像这个事务从来没有执行过一样。
+
+2. 一致性 在事务开始之前和事务结束以后，数据库的完整性约束没有被破坏。具体来说就是，比如表与表之间存在外键约束关系，那么你对数据库进行的修改操作就必需要满足约束条件，即如果你修改了一张表中的数据，那你还需要修改与之存在外键约束关系的其他表中对应的数据，以达到一致性。
+
+3. 隔离性 隔离状态执行事务，使它们好像是系统在给定时间内执行的唯一操作。如果有两个事务，运行在相同的时间内，执行相同的功能，事务的隔离性将确保每一事务在系统中认为只有该事务在使用系统。这种属性有时称为串行化，为了防止事务操作间的混淆，必须串行化或序列化请求，使得在同一时间仅有一个请求用于同一数据。
+
+4. 持久性 在事务完成以后，该事务所对数据库所作的更改便持久的保存在数据库之中，并不会被回滚。 由于一项操作通常会包含许多子操作，而这些子操作可能会因为硬件的损坏或其他因素产生问题，要正确实现ACID并不容易。ACID建议数据库将所有需要更新以及修改的资料一次操作完毕，但实际上并不可行。
+
+目前主要有两种方式实现ACID：第一种是Write ahead logging，也就是日志式的方式。第二种是Shadow paging。
+
+ref: http://blog.csdn.net/shenwansangz/article/details/47614759
+
+## 如何管理数据库 schema 的变更，当程序一个一个版本迭代的时候，如何自动化地处理数据库 schema 的变更。
+
+## 懒加载是如何实现的，什么时候有用？有什么坑呢？
+
+```
+if (_AllCustomers == null) {
+    _AllCustomers = ExpensiveDataCall();
+}
+
+return _AllCustomers; // Was: _Customers, not sure if by design.
+```
+
+缺点是得到的数据可能是滞后的，以及更新策略的设计
+
+https://softwareengineering.stackexchange.com/questions/278210/is-lazy-loading-always-required
+
+## "N+1 问题" 如何解决？
+
+举个例子，我们数据库中有两张表，一个是Customers，一个是Orders。Orders中含有一个外键customer_id，指向了Customers的主键id。
+
+想要得到所有Customer以及其分别对应的Order，一种写法是 `SELECT * FROM Customers;`
+对于每一个Customer: `SELECT * FROM Orders WHERE Orders.customer_id = #{customer.id}`
+
+这样我们实际对数据库做了N+1次查询：选择所有Customer一次得到N个Customer，对于N个Customer分别选择其对应的Order一共N次。
+所以，一共执行了N+1次查询，这就是N+1问题
+
+N+1问题的一般解决方法
+
+使用Left Join一次性取出所有数据：`SELECT * FROM Customers LEFT JOIN Orders on Customers.id = Orders.customer_id`。 这样虽然取出的数据相对多一些，但是只需要一次执行
+
+PS：感觉数据库所谓的几个范式优点纸上谈兵，如果完全按照这些范式设计的话，性能就成渣了，互联网公司实际上极少用join。不过产品使用 hive 查询数据倒是经常用 join。
+
+ref: http://kevinsun.logdown.com/posts/1069599
+
+## 如何找出耗费资源最多的查询？
+
+有一个查询 mysql 慢查询的语句，忘了记在哪儿了
+
+## 从你来看，是否总要是的数据规范化，什么时候不规范更好？
+
+数据规范化的主要目的是消除冗余信息，但是往往会对性能造成影响。如果性能更重要的话，应该放开规范化。
+
+ref:
+
+1. https://stackoverflow.com/questions/934577/should-i-normalize-my-db-or-not
+2. https://stackoverflow.com/questions/1102590/what-exactly-does-database-normalization-do
+3. http://www.25hoursaday.com/weblog/2007/08/03/WhenNotToNormalizeYourSQLDatabase.aspx
+
+## 蓝绿部署涉及到数据库的时候会更加复杂，如果处理这种情况呢？
+
+蓝绿部署：https://www.v2ex.com/t/344341
+
+
+# 关于 NoSQL 的问题
+
+## 什么是 Eventual Consistency？
+
+因为大多数的 NoSQL 数据库都是分布式的，所以很难保证在任何时间都是完全一致的，但是可以保证在一定时间最终一致。
+
+ref: https://stackoverflow.com/questions/10078540/eventual-consistency-in-plain-english
+
+## 解释一下 CAP 理论
+
+## 为什么 NoSQL 越来越流行了？
+
+## NoSQL 如何解决 scalability 的问题？
+
+## 在哪种情况下你会使用 MongoDB 这样的文档数据库来代替 MySQL 这种关系型数据库呢？
 
 # 关于版本管理的问题
 
@@ -271,8 +358,7 @@ Field = null` 不会匹配到含有 null 的行？
 
 没用过 SVN，但是 SVN 好像是服务端分支，而 Git 在本地分支就可以了
 
-## 像是 Git 这样的分布式版本管理系统相对于中心式的版本管理系统，比如
-SVN，有什么优势和劣势？
+## 像是 Git 这样的分布式版本管理系统相对于中心式的版本管理系统，比如 SVN，有什么优势和劣势？
 
 没用过 SVN
 
@@ -284,5 +370,18 @@ SVN，有什么优势和劣势？
 
 # 关于并发的问题
 
+## Q: 为什么我们需要并发呢？
+
+## 为什么测试多线程的代码如此之难？
+
+## 什么是竞态条件？举个例子
+
+## 什么是死锁？举个例子
+
+## 什么情况下会导致进程饥饿？
+
 ## 什么是 wait free 的算法
 
+# 分布式系统的问题
+
+## 如何测试一个分布式系统？
