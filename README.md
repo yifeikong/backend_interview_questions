@@ -346,6 +346,15 @@ ref: https://stackoverflow.com/questions/10078540/eventual-consistency-in-plain-
 
 ## 解释一下 CAP 理论
 
+CAP 理论并不是简单的三选二，而是至少保证P，然后在CA中二选一。P指的是分区容忍性，也就是网络分区，比如两个数据中心之间的网络断掉的情况如何提供服务的。所以CAP应该理解为当P发生的时候，A和C只能而选一。也就是当发生网络分区的时候，如果我们要继续服务，那么强一致性和可用性只能2选1。
+
+当发生网络分区的时候，在如果要提供服务就可能无法保证强一致性，如果保证一致性，就不一定能提供服务。实际上强一致性不一定是必须的，往往满足了最终一致性就可以了。
+
+https://www.zhihu.com/question/64778723
+http://www.infoq.com/cn/articles/cap-twelve-years-later-how-the-rules-have-changed
+http://www.hollischuang.com/archives/666
+
+
 ## 为什么 NoSQL 越来越流行了？
 
 ## NoSQL 如何解决 scalability 的问题？
@@ -385,3 +394,5 @@ ref: https://stackoverflow.com/questions/10078540/eventual-consistency-in-plain-
 # 分布式系统的问题
 
 ## 如何测试一个分布式系统？
+
+使用 mock 
