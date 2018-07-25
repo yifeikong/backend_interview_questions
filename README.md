@@ -637,7 +637,7 @@ ref:
 ## How would you manage a very late project?
 ## "Individuals and interactions over processes and tools" and "Customer collaboration over contract negotiation" comprise half of the values of the Agile Manifesto. Discuss
 ## Tell me what decisions would you take if you could be the CTO of your Company.
-## Are Program Managers useful?
+## 产品经理有用吗？
 ## Organize a development team using flexible schedules (that is, no imposed working hours) and "Take as you need" vacation policy
 ## How would you manage a very high turn over and convince developers not to leave the team, without increasing compensation? What could a Company improve to make them stay?
 ## What are the top 3 qualities you look for in colleagues, beyond their code?
@@ -673,11 +673,22 @@ ref:
 ## How would you design a software system for scalability?
 ## Someone gave the name "The "C10k problem" to the problem of optimising network sockets to handle over 10.000 open connections at once. While handling 10.000 concurrent clients is not the same as handling 10.000 open connection, the context is similar. It's a tough challenge anyway, and no one is expected to know every single detail to solve it. It may be interesting to discuss the strategies you know to deal with that problem. Would you like to try?
 ## How would you design a decentralized (that is, with no central server) P2P system?
-## You may recall that Common Gateway Interface (CGI) is a standard protocol for web servers to execute programs (CGI scripts) that execute as Command-line programs on a server, and that dynamically generate HTML pages when invoked by a HTTP request. Perl and PHP used to be common languages for such scripts. In CGI, a HTTP request generally causes the invocation of a new process on the server, but FastCGI, SCGI and other approaches improved the mechanism, raising the performance, with techniques such as preforking processes. Can you imagine why has't CGI eventually win, and was instead replaced with other architectural approaches?
-## How would you defend the design of your systems against Vendor Lock-in?
-## What are the disadvantages of the Publish-Subscribe pattern at scale?
+## 为什么 CGI 不流行了？
+
+CGI 每个请求就要新建一个进程，而进程的创建开销是很大的。
+
+## 如何防止你的系统陷入供应商锁定（vendor lockin）？
+
+在第三方 API 上再抽象一层，避免直接依赖对方代码或者 API。尽量使用开源软件，实在
+不行还可以自己改。
+
+## PubSub 模型在规模变大的时候会有那些问题？
+
+PubSub 本质上是一个多生产者多消费者的队列。当消息量大的时候，如果没有很好地缓冲
+机制，很可能造成缓冲溢出导致丢消息。另外这种模式也没有定义很好地持久化机制。
+
 ## What's new in CPUs since the 80s, and how does it affect programming?
-## In which part of the lifecycle of a software performance should be taken in consideration, and how?
+## 在软件声明周期的哪个部分应该考虑性能？怎么做？
 ## How could a Denial of Service arise not maliciously but for a design or architectural problem?
 ## What’s the relationship between Performance and Scalability?
 ## When is it OK (if ever) to use tight coupling?
@@ -698,15 +709,49 @@ ref:
 
 # 关于安全的问题
 
-How do you write secure code? In your opinion, is it one of the developer's duties, or does it require a specialized role in the company? And why?
-Why is it said that cryptography is not something you should try to invent or design yourself?
-What is two factor authentication? How would you implement it in an existing web application?
-If not carefully handled, there is always a risk of logs containing sensitive information, such as passwords. How would you deal with this?
-Write down a snippet of code affected by SQL Injection and fix it.
-How would it be possible to detect SQL Injection via static code analysis? I don't expect you to write an algorithm capable of doing this, as it is probably a huge topic, but let's discuss a general approach.
-What do you know about Cross-Site Scripting? If you don't remember it, let's review online its definition and let's discuss about it.
-What do you know about Cross-Site Forgery Attack? If you don't remember it, let's review online its definition and let's discuss about it.
-## https 是如何工作的
+## How do you write secure code? In your opinion, is it one of the developer's duties, or does it require a specialized role in the company? And why?
+## Why is it said that cryptography is not something you should try to invent or design yourself?
+
+## 什么是两步验证，如何实现？
+
+除了密码之外，再使用额外的设备提供一个密码，比如 OTG 或者硬件密码等。
+
+## 如果不小心处理的话，很可能日志中会包含很多的敏感数据，如何处理呢？(twitter 和 GitHub 都犯了这个错误)
+
+只在开发环境记录敏感日志，在线上要关闭这些日志
+
+ref:
+
+1. https://systemoverlord.com/2018/05/03/how-the-twitter-and-github-password-logging-issues-could-happen.html
+
+## 写一个会受到 SQL 注入影响的代码，然后修复它
+
+## How would it be possible to detect SQL Injection via static code analysis? I don't expect you to write an algorithm capable of doing this, as it is probably a huge topic, but let's discuss a general approach.
+
+## 什么是 XSS，如何阻止？
+
+如果完全信任用户的输入，用户可能输入 `<script>` 的标签的形式注入自己的脚本。更严
+重的是，如果 cookies 没有设置成 http only 的，那么用户的 cookies 很可能也被偷取。
+
+ref:
+
+1. https://www.cnblogs.com/dolphinX/p/3391351.html
+
+## 什么是 CSRF，如何阻止？
+
+CSRF攻击是源于WEB的隐式身份验证机制！WEB的身份验证机制虽然可以保证一个请求是来自于某个用户的浏览器，但却无法保证该请求是用户批准发送的！
+
+浏览器在请求每个域名的时候会带上对应的 cookies，可以通过 img 标签的 src 等伪造
+GET 请求，或者通过 js 来伪造表单提交的 POST 请求，这样就相当于代替用户请求了服务
+器。
+
+可以通过在页面上增加一个隐藏的 crsf_token 来，然后每次请求都校验这个 token 是不是合法。
+
+ref:
+
+1. http://www.cnblogs.com/hyddd/archive/2009/04/09/1432744.html
+
+## https 是如何工作的?
 
 
 ## 什么是中间人攻击？为什么 https 可以避免中间人攻击？
@@ -745,44 +790,57 @@ ref:
 1. https://serverfault.com/questions/418393/why-is-creating-a-new-tcp-connection-regarded-as-expensive
 
 ## 封装对什么很重要呢？
-## 什么是实时系统，他和普通通系统有什么区别呢？
+## 什么是实时系统，它和普通系统有什么区别呢？
 ## What's the relationship between real-time languages and heap memory allocation?
 ## Immutability is the practice of setting values once, at the moment of their creation, and never changing them. How can immutability help write safer code?
 ## What are the pros and cons of mutable and immutable values.
 ## What's the Object-Relational impedance mismatch?
-## Which principles would you apply to define the size of a cache?
-## What's the difference between TCP and HTTP?
-## What are the tradeoffs of client-side rendering vs. server-side rendering?
-## How could you develop a reliable communication protocol based on a non-reliable one?
+## 如何确定缓存的大小？
+## TCP 和 HTTP 之间有什么区别？
+
+tcp 是第四层的协议，是面向字节流的。而 http 是 第七层的协议，基于 tcp，但是是面
+向报文的。
+
+## 客户端渲染和服务端渲染各有什么优缺点？
+
+客户端渲染减轻服务器负担，可以把页面逻辑写在js中，不需要总是重载页面。但是不利于
+SEO，同时可能造成白屏现象。
+
+## 如何基于不可靠的链接建立一个可靠地链接？
+
+可以参考 TCP，IP 协议就是一个不可靠的协议，但是基于 IP 的 TCP 协议是可靠的。
+
+TCP 有编号确认机制，还可以重发。
+
 ## Imagine you want to remove the possibility to have null references in your preferred language: how would you achieve this goal? What consequences could this have?
 
 
 # 开放问题
 
-* 为什么人们抵制变化？
-* 像你的爷爷奶奶解释下什么是线程？
-* As a software engineer you want both to innovate and to be predictable. How those 2 goals can coexist in the same strategy?
-* What makes good code good?
-* Explain streaming and how you would implement it.
-* Say your Company gives you one week you can use to improve your and your colleagues' lifes: how would you use that week?
-* What did you learn this week?
-* There is an aesthetic element to all design. The question is, is this aesthetic element your friend or your enemy?
-* List the last 5 books you read.
-* How would you introduce Continuous Delivery in a successful, huge company for which the change from Waterfall to Continuous Delivery would be not trivial, because of the size and complexity of the business?
-* When does it make sense to reinvent the wheel?
-* Let's have a conversation about "Reinventing the wheel", the "Not Invented Here Syndrome" and the "Eating Your Own Food" practice
-* What's the next thing you would automate in your current workflow?
-* Why is writing software difficult? What makes maintaining software hard?
-* Would you prefer working on Green Field or Brown Field projects? Why?
-* What happens when you type google.com into your browser and press enter?
-* What does an Operating System do when it has got no custom code to run, and therefore it looks idle? I would like to start a discussions about interrupts, daemons, background services, polling, event handling and so on.
-* Explain Unicode/Database Transactions to a 5 year old child.
-* Defend the monolithic architecture.
-* What does it mean to be a "Professional Developer"?
-* Is developing software an art, a craftsmanship or an engineering endeavour? Your opinion.
-* "People who like this also like... ". How would you implement this feature in an e-commerce shop?
-* Why are corporations slower than startups in innovating?
-* What have you achieved recently that you are proud of?
+## 为什么人们抵制变化？
+## 像你的爷爷奶奶解释下什么是线程？
+## As a software engineer you want both to innovate and to be predictable. How those 2 goals can coexist in the same strategy?
+## What makes good code good?
+## Explain streaming and how you would implement it.
+## Say your Company gives you one week you can use to improve your and your colleagues' lifes: how would you use that week?
+## What did you learn this week?
+## There is an aesthetic element to all design. The question is, is this aesthetic element your friend or your enemy?
+## List the last 5 books you read.
+## How would you introduce Continuous Delivery in a successful, huge company for which the change from Waterfall to Continuous Delivery would be not trivial, because of the size and complexity of the business?
+## When does it make sense to reinvent the wheel?
+## Let's have a conversation about "Reinventing the wheel", the "Not Invented Here Syndrome" and the "Eating Your Own Food" practice
+## What's the next thing you would automate in your current workflow?
+## Why is writing software difficult? What makes maintaining software hard?
+## Would you prefer working on Green Field or Brown Field projects? Why?
+## What happens when you type google.com into your browser and press enter?
+## What does an Operating System do when it has got no custom code to run, and therefore it looks idle? I would like to start a discussions about interrupts, daemons, background services, polling, event handling and so on.
+## Explain Unicode/Database Transactions to a 5 year old child.
+## Defend the monolithic architecture.
+## What does it mean to be a "Professional Developer"?
+## Is developing software an art, a craftsmanship or an engineering endeavour? Your opinion.
+## "People who like this also like... ". How would you implement this feature in an e-commerce shop?
+## Why are corporations slower than startups in innovating?
+## What have you achieved recently that you are proud of?
 
 
 # 关于代码片段的问答
@@ -960,15 +1018,16 @@ function()
 
 
 # Bill Gates 式的问题
+
 This section collects some weird questions along the lines of the Manhole Cover Question.
 
-* 如果你把一个镜子放到扫描仪中会发生什么？
-* 如果有一个你的克隆人来做你的老板，你愿意为他工作吗？
-* 面试我
-* 为什么知乎上的答案比百度知道上要好？
-* Let's play a game: defend Cobol against modern languages, and try to find as many reasonable arguments as you can.
-Where will you be in 10 years?
-You are my boss and I'm fired. Inform me.
-I want to refactor a legacy system. You want to rewrite it from scratch. Argument. Then, switch our roles.
-Your boss asks you to lie to the Company. What's your reaction?
-If you could travel back in time, which advice would you give to your younger self?
+## 如果你把一个镜子放到扫描仪中会发生什么？
+## 如果有一个你的克隆人来做你的老板，你愿意为他工作吗？
+## 面试我
+## 为什么知乎上的答案比百度知道上要好？
+## Let's play a game: defend Cobol against modern languages, and try to find as many reasonable arguments as you can.
+## 十年后你想变成怎样？
+## 你是我的老板，然后把我炒了鱿鱼，通知我
+## I want to refactor a legacy system. You want to rewrite it from scratch. Argument. Then, switch our roles.
+## Your boss asks you to lie to the Company. What's your reaction?
+## 如果你可以穿越回过去，你会给自己什么建议？
