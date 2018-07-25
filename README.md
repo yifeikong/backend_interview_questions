@@ -2,7 +2,6 @@
 
 ## Q: 为什么全局和静态变量是邪恶的？你能给出一个代码例子吗？
 
-A:
 
 1. 对于 C 语言来说，占据了静态存储区，使程序变大
 2. 破坏封装，函数不是幂等的
@@ -11,13 +10,13 @@ A:
 
 ## Q: 给我讲讲 Inversion of Control，以及他是如何提升代码的设计水平的
 
-A: 其实很简单，就是把一段代码中需要依赖的另一个类从这段代码中移出来，然后把生成的结果传递到这段代码中，这就是 Inversion of Control 了
+其实很简单，就是把一段代码中需要依赖的另一个类从这段代码中移出来，然后把生成的结果传递到这段代码中，这就是 Inversion of Control 了
 
 https://stackoverflow.com/questions/3058/what-is-inversion-of-control
 
 ## Q: Demeter 定律（最小知识原则）说一个单元应该对其他单元了解的知识越少越好，而且应该只能和他的直接相关单元通信（或者说“不要和陌生人说话”）。你会写违反这个原则的代码吗？展示下为什么这个是不好的设计然后修复他。
 
-A: 比如说一个类不应该访问另一个类的数据成员，而应该通过getter方法来访问。当然这样做可能会使运行效率低下。但是比如说另一个类的实现改变的时候，我们不需要改动代码，因为没有依赖。
+比如说一个类不应该访问另一个类的数据成员，而应该通过getter方法来访问。当然这样做可能会使运行效率低下。但是比如说另一个类的实现改变的时候，我们不需要改动代码，因为没有依赖。
 
 ## Q: Active Record 模式提倡对象中包含增删改查等方法，并且每个属性都对应到数据库的表中字段，介绍一下这种模式的限制和坑
 
@@ -38,9 +37,9 @@ ref: http://larabase.com/post/156
 
 ## Q: 为什么经常说 null 的引入是一个“价值百万美元的错误”？能不能谈一下避免Null值的一些设计模式，比如 Null Object 模式 和 Option Types？
 
-A: null 是一个没有值的值，这就是他的错误。实际上，比如在Python中，我就经常遇到 None object has no method xxx 的问题。
+A: null 是一个没有值的值，这就是错误。实际上，比如在Python中，我就经常遇到 None object has no method xxx 的问题。
 
-Null Ojbect pattern 就是定义一个空对象，让他来当做当值为空时候的对象，而不要使用Null值来表示空。避免了检查返回是不是为null的问题。
+Null Ojbect pattern 就是定义一个空对象，让它来当做当值为空时候的对象，而不要使用Null值来表示空。比如返回空字符串而不是None，避免了检查返回是不是为null的问题。
 
 在一些编程语言，尤其是函数式编程语言中，Option Type 是一个多态的类型，表示的是函数可能返回一个有效的值或者无效的值
 
@@ -84,19 +83,21 @@ A: 这个也是经典问题了，但是实际上感觉并没有卵用，但是�
                         cls._singleton_instance = cls()
             return cls._singleton_instance
 
+也可以使用装饰器实现
+
 ## Q: 能够改变具体实现而不用更改使用方代码叫做数据抽象。给出一个违反这个原则的例子，然后修复他
 
 A: 尽量使用 getter 和 setter，而不要直接访问数据成员。当然在 Python 中有更好的方法(properties)
 
 ## Q: 写一段违反 DRY 原则的代码，然后修复他
 
-A: 
+A: 这也太简单了。。正常人哪儿有写重复代码的，基本都是过度封装居多。
 
 ## 如何处理 Dependency Hell（依赖地狱）
 
 1. 首先用包管理器，不要手工拷贝代码管理依赖
 2. 多使用 virtual env 等虚拟环境工具
-3. 使用docker 打包镜像
+3. 使用 docker 打包镜像
 
 ## Q: goto 语句是有害的吗？关于使用 goto 语句你有什么看法呢？
 
@@ -104,23 +105,42 @@ A:
 
 ## Q: 保持软件健壮的一个核心原则是，对你的输出要严格，但是对你的输入要保持宽容，能不能讨论一下这个原则?
 
+比如说对于一个函数来说，可以接受不同类型的值，但是，输出得时候要注意保证自己的输出是有效的。
+
+
+    def add(a, b):
+        a = int(a)
+        b = int(b)
+        return a + b
+
+## Command-Query Separation (CQS)  – 命令-查询分离原则
+
+查询：当一个方法返回一个值来回应一个问题的时候，它就具有查询的性质；
+命令：当一个方法要改变对象的状态的时候，它就具有命令的性质；
+
+通常，一个方法可能是纯的Command模式或者是纯的Query模式，或者是两者的混合体。在设计接口时，如果可能，应该尽量使接口单一化，保证方法的行为严格的是命令或者是查询，这样查询方法不会改变对象的状态，没有副作用，而会改变对象的状态的方法不可能有返回值。也就是说：如果我们要问一个问题，那么就不应该影响到它的答案。实际应用，要视具体情况而定，语义的清晰性和使用的简单性之间需要权衡。将Command和Query功能合并入一个方法，方便了客户的使用，但是，降低了清晰性，而且，可能不便于基于断言的程序设计并且需要一个变量来保存查询结果。
+
+在系统设计中，很多系统也是以这样原则设计的，查询的功能和命令功能的系统分离，这样有则于系统性能，也有利于系统的安全性。
+
 ## Q: 责任分离原则用来把计算机程序分解到不同的领域，有不同的方法来实现这个原则（比如 对象、函数、模块、设计模式）等等，能不能讨论下这个话题?
 
+一旦一个函数被抽像出来并实现了，那么使用函数的人就不用关心这个函数是如何实现的，同样的，一旦一个类被抽像并实现了，类的使用者也不用再关注于这个类的内部是如何实现的。
+
+ref: https://coolshell.cn/articles/4535.html
 
 # 代码设计问题
 
 ## 经常听人说，在OO设计中要满足高内聚和低耦合，这个是什么意思，怎么实现？
 
 耦合性与内聚性是模块独立性的两个定性标准，将软件系统划分模块时，尽量做到高内聚低耦合，提高模块的独立性，为设计高质量的软件结构奠定基础。
+
 有个例子很容易明白：一个程序有50个函数，这个程序执行得非常好；然而一旦你修改其中一个函数，其他49个函数都需要做修改，这就是高耦合的后果。
 
 ref: https://www.cnblogs.com/robnetcn/archive/2012/04/15/2449008.html
 
-
 ## 为什么大多数语言的数组索引都是从0开始的
 
 因为 C 是从0开始的，大多数语言都受C的影响，另外就是C接近硬件，0表示的是偏移量
-
 
 ## 测试与 TDD 如何影响代码设计
 
@@ -137,24 +157,43 @@ ref: http://www.jamesshore.com/Blog/How-Does-TDD-Affect-Design.html
 
 我同意，代码应该尽量是自解释的，而不是借助于注释才能明白
 
+我觉得以下情况下才需要添加注释：
+
+* 解释了业务逻辑和总体设计，这往往也是文档的一部分
+* 采用了特殊的用法
+* 算法比较复杂，代码无法解释清楚
+
 ## 设计和架构之间的区别是？
+
+这个问题也太抽象了吧，架构是设计的实现。。
 
 ## 为什么 TDD 中要在代码之前写测试
 
-## C++ 支持多重继承，而在 Java 中允许一个类去实现多个
-interface。使用这些方法对于代码的正交性有什么影响吗？使用多重继承和实现多个
-interface有什么区别吗？使用委托和使用继承有什么区别吗？
+* 测试定义了代码完成的标志
+* 测试是你代码如何使用的文档
+* 面向测试编程可以让你保持专注
+
+## C++ 支持多重继承，而在 Java 中允许一个类去实现多个 interface。使用这些方法对于代码的正交性有什么影响吗？使用多重继承和实现多个 interface 有什么区别吗？使用委托和使用继承有什么区别吗？
+
+
+多重继承的不好就不用多说了吧，尽量避免继承。。
 
 ## 把业务逻辑都放在 Stored Procedures 中的好处和坏处
 
-貌似意思是把业务逻辑都写在数据库里，这得多奇葩呀。。
+貌似意思是把业务逻辑都写在数据库里，这得多奇葩呀。。不过银行系统里似乎的确是这么用的，厉害啊
 
 ref: https://softwareengineering.stackexchange.com/questions/158534/pros-and-cons-of-holding-all-the-business-logic-in-stored-procedures-in-web-appl
 
 ## 为什么 OO 设计垄断了业界这么多年？
 
+OO 的好处：
+
+1. 限制对数据成员的访问，减少代码耦合
+2. 提供了一个抽象层，类是对现实世界的事物的一个很好抽象
+
 ## 你用什么方法来评价你的代码是否设计有问题？
 
+这个问题太抽象了
 
 # 语言相关问题
 
@@ -164,7 +203,7 @@ Python：GIL、性能慢、2 和 3不兼容
 
 ## 为什么现在函数式编程的影响越来越大？
 
-两个方面回答，一方面，为什么之前函数式编程不流行，函数式编程性能往往不高，这时候大家更愿意使用贴近硬件的 C 语言等
+两个方面回答，一方面，为什么之前函数式编程不流行，函数式编程性能往往不高，例如垃圾处理等，这时候大家更愿意使用贴近硬件的 C 语言等
 另一方面，函数式编程没有副作用，更好地适应并发高的情形。可以证明正确性。多核处理器的出现等等。方便实现高阶函数
 
 ## 什么是闭包，它和类之间有什么联系？
@@ -173,9 +212,9 @@ Python：GIL、性能慢、2 和 3不兼容
 
     function() {
         var a = 1;
-        console.log(a); // works, -> 1
+        console.log(a);  // works, -> 1
     }
-    console.log(a); // fails, -> undefined
+    console.log(a);  // fails, -> undefined
 
     function outer() {
         let a = 1
@@ -219,25 +258,71 @@ ref: https://stackoverflow.com/questions/36636/what-is-a-closure
 
 ## 当我们说一个语言中，函数是一等公民的时候，我们想表达什么
 
+函数可以向其他变量一样被传递
+
+ref: https://stackoverflow.com/questions/5178068/what-is-a-first-class-citizen-function
+
 ## 给我写一个匿名函数的例子
+
+    filter([1, 2, 3, 4], lambda x: x % 2 == 0)
 
 ## 有很多不同的类型系统，我们来讨论一下静态和动态类型系统，以及强类型和弱类型。关于这个话题你肯定有你自己的观点，然后分享一下当开发一个企业级的系统的时候，你会如何选择
 
-## 命名空间有什么用
+静态类型系统是指的变量绑定的类型在生命周期内不可变，而动态类型系统则相反。
+
+强类型指的是两个互相操作的变量必须类型匹配，而弱类型则会自动转换。
+
+比如在弱类型的 JS 中：
+
+    let a = "1" + 1  // a = 2
+
+而在强类型的 Python 中：
+
+    In [1]: a = "1" + 1
+    ---------------------------------------------------------------------------
+    TypeError                                 Traceback (most recent call last)
+    <ipython-input-1-c5310317b555> in <module>()
+    ----> 1 a = "1" + 1
+
+    TypeError: must be str, not int
+
+实际上好多人分不清楚，什么是动态类型，什么是弱类型。
+
+在开发大规模的软件的时候，使用静态强类型语言会好一些，这样编译器就可以做好多的检
+查工作。
 
 ## 聊聊 Java 和 C# 之间的互操作性，或者其他任意两种语言之间
 
+可以通过队列或者RPC来实现通信
+
 ## 命名空间有什么用？
+
+可以让两个两个模块使用同一个名字
 
 ## 为什么很多工程师不喜欢 Java
 
+啰嗦。在语言上比较繁琐以及架构上各种过度设计。
+
 ## 好语言好在哪里？坏语言坏在哪里？
 
-## 写两个函数，一个是 Reference Transparency 的，一个不是
+太抽象了吧
 
-Referential transparency, referred to a function, indicates that you can determine the result of applying that function only by looking at the values of its arguments. You can write referentially transparent functions in any programming language, e.g. Python, Scheme, Pascal, C.
+## 写两个函数，一个是 Referential Transparency 的，一个不是
 
-## 什么是堆，什么是栈，什么是 Stack Overflow
+Referential trasparency 指的是通过函数的参数就可以推断出函数的结果。比如下面两个函数
+
+```
+def add(a, b):
+    return a + b
+```
+
+```
+MSG = 'hello '
+def greeting(name):
+    return MSG + name
+```
+
+## 什么是堆，什么是栈，什么是堆栈溢出 Stack Overflow
 
 ## 一些语言，尤其是支持函数式编程的语言，推崇一种称作 Pattern Matching 的技术，他和 switch 语句有什么区别吗？
 
@@ -245,9 +330,22 @@ Pattern Matching 相对于 switch 更加灵活，switch 只能使用常量匹配
 
 ## 为什么一些语言（比如 Go）没有异常呢？这样做的好处和坏处都是什么？
 
+把异常和控制结构混在一起，可能会引起混淆。而且可能会鼓励用户把一些常见的错误也归
+类为异常，比如打开文件。
+
+异常本质上是一个不知道会跳到哪里去的 goto。
+
+好处是强迫程序员在编写代码的时候就处理每一个错误，坏处是这样会混淆代码的核心逻辑
+
+ref: https://golang.org/doc/faq#exceptions
+
 ## 如果 `Cat` 是一个 `Animal`，那么 TakeCare<Cat> 是一个 `TakeCare<Animal>` 吗？
 
+不是, 模板特例化之后是不同的类
+
 ## 为什么在 Java 和 C# 中，构造函数不是接口的一部分呢?
+
+接口定义的是类的行为，而构造函数属于实现细节。如果允许的话，会有如下问题：如果一个类实现了两个接口，该如何调用构造函数呢？
 
 # 数据库
 
@@ -281,9 +379,14 @@ Pattern Matching 相对于 switch 更加灵活，switch 只能使用常量匹配
 
 目前主要有两种方式实现ACID：第一种是Write ahead logging，也就是日志式的方式。第二种是Shadow paging。
 
+在使用WAL的系统中，所有的修改都先被写入到日志中，然后再被应用到系统状态中。通常包含redo和undo两部分信息。
+
 ref: http://blog.csdn.net/shenwansangz/article/details/47614759
+https://www.cnblogs.com/hzmark/p/wal.html
 
 ## 如何管理数据库 schema 的变更，当程序一个一个版本迭代的时候，如何自动化地处理数据库 schema 的变更。
+
+导出数据库，确保升级失败后能够重建数据库。把变更动作写成一个脚本，然后提交到仓库中。然后执行升级。
 
 ## 懒加载是如何实现的，什么时候有用？有什么坑呢？
 
@@ -319,7 +422,23 @@ ref: http://kevinsun.logdown.com/posts/1069599
 
 ## 如何找出耗费资源最多的查询？
 
-有一个查询 mysql 慢查询的语句，忘了记在哪儿了
+```
+SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST where time>10 and command<>"Sleep"
+```
+
+或者设置日志
+
+```
+[mysqld]
+
+slow-query-log = 1
+
+slow-query-log-file = /var/log/mysql/mysql-slow.log
+
+long_query_time = 5
+
+log-queries-not-using-indexes = 1
+```
 
 ## 从你来看，是否总要是的数据规范化，什么时候不规范更好？
 
@@ -342,24 +461,67 @@ ref:
 
 因为大多数的 NoSQL 数据库都是分布式的，所以很难保证在任何时间都是完全一致的，但是可以保证在一定时间最终一致。
 
-ref: https://stackoverflow.com/questions/10078540/eventual-consistency-in-plain-english
+不一致是否可接受取决于客户应用程序。Vogels给出了一个网站的例子，例中真正重要的是“用户感知到的一致性”，也就是让不一致窗口——即“更新发生时刻到任何观察者都一定能观察到更新后数据的时刻之间的时间段”——“小于顾客对下一页面加载时间的期待”，这样更新就可在预期发生下一次读取的时刻之前传播到整个系统。
+
+一致性有不同程度：
+
+强一致性。在更新完成后，（A、B或C进行的）任何后续访问都将返回更新过的值。
+弱一致性。系统不保证后续访问将返回更新过的值，在那之前要先满足若干条件。通常条件就是经过一段时间，也就是不一致窗口。
+最终一致性。存储系统保证如果对象没有新的更新，最终（在不一致窗口关闭之后）所有访问都将返回最后更新的值。
+
+ref: 
+1. https://stackoverflow.com/questions/10078540/eventual-consistency-in-plain-english
+2. https://www.zhihu.com/question/20113030
 
 ## 解释一下 CAP 理论
+
+一致性 (Consistency)：一个写操作返回成功，那么之后的读请求都必须读到这个新数据；如果返回失败，那么所有读操作都不能读到这个数据。所有节点访问同一份最新的数据。
+可用性 (Availability)：对数据更新具备高可用性，请求能够及时处理，不会一直等待，即使出现节点失效。
+分区容错性 (Partition tolerance)：能容忍网络分区，在网络断开的情况下，被分隔的节点仍能正常对外提供服务。
+
+理解CAP理论最简单的方式是想象两个副本处于分区两侧，即两个副本之间的网络断开，不能通信。
+
+如果允许其中一个副本更新，则会导致数据不一致，即丧失了C性质。
+如果为了保证一致性，将分区某一侧的副本设置为不可用，那么又丧失了A性质。
+除非两个副本可以互相通信，才能既保证C又保证A，这又会导致丧失P性质。
 
 CAP 理论并不是简单的三选二，而是至少保证P，然后在CA中二选一。P指的是分区容忍性，也就是网络分区，比如两个数据中心之间的网络断掉的情况如何提供服务的。所以CAP应该理解为当P发生的时候，A和C只能而选一。也就是当发生网络分区的时候，如果我们要继续服务，那么强一致性和可用性只能2选1。
 
 当发生网络分区的时候，在如果要提供服务就可能无法保证强一致性，如果保证一致性，就不一定能提供服务。实际上强一致性不一定是必须的，往往满足了最终一致性就可以了。
 
-https://www.zhihu.com/question/64778723
-http://www.infoq.com/cn/articles/cap-twelve-years-later-how-the-rules-have-changed
-http://www.hollischuang.com/archives/666
+ref:
 
+1. https://www.zhihu.com/question/64778723
+2. http://www.infoq.com/cn/articles/cap-twelve-years-later-how-the-rules-have-changed
+3. http://www.hollischuang.com/archives/666
 
 ## 为什么 NoSQL 越来越流行了？
 
+1. 传统的 SQL 数据库需要使用 ORM
+2. NoSQL 一般开始设计的时候就考虑了分布式的问题
+3. 非结构化的数据越来越多
+
+ref:
+
+1. https://www.quora.com/Why-is-NoSQL-becoming-popular
+
 ## NoSQL 如何解决 scalability 的问题？
 
+NoSQL 放弃了 SQL 中提供的原子性等诸多特性，所以非常适合多机实现。
+
+比如说：
+
+* Dropping Atomicity lets you shorten the duration for which tables (sets of data) are locked. Example: MongoDB, CouchDB.
+* Dropping Consistency lets you scale up writes across cluster nodes. Examples: riak, cassandra.
+* Dropping Durability lets you respond to write commands without flushing to disk. Examples: memcache, redis.
+
+ref:
+
+1. https://softwareengineering.stackexchange.com/questions/194340/why-are-nosql-databases-more-scalable-than-sql
+
 ## 在哪种情况下你会使用 MongoDB 这样的文档数据库来代替 MySQL 这种关系型数据库呢？
+
+基本不会采用 MongoDB。文档数据库中的好多特性现在 MySQL 都已经实现了，比如说 JSON Field
 
 # 关于版本管理的问题
 
@@ -373,26 +535,440 @@ http://www.hollischuang.com/archives/666
 
 ## 能不能描述一下 GitHub Flow 或者 gitflow 的工作模式
 
+有两个分支是长期存在的，master 和 dev，日常开发在dev 分支上，当 dev 分支上的可以
+发布新版本之后，可以合并到 master 分支。master 分支上的总是稳定版本
+
+除此之外还有一些临时的分支：
+
+* 功能分支
+* 发布分支
+* Hotfix 分支
+
+功能分支从 dev 分支上分叉出来，并且最终要合并会 dev 分支，名字可以随便起
+发布分支可以从 dev 分支，开发完成后合并到 dev 或者 master 分支（不太理解为什么要有这种分支），名字 `release-*`
+Hotfix 分支用于修复 bug，可以从 master 中分叉出去，但是注意要同时合并回 dev 和 master，名字 `hotfix-*`
+
+https://nvie.com/posts/a-successful-git-branching-model/
+
 ## 什么是 rebase
+
+顾名思义，就是改变当前 commit 的上一个节点(base node)
 
 ## 为什么 git 中的 merge 比 SVN 方便很多？
 
+没用过 SVN
+
 # 关于并发的问题
 
-## Q: 为什么我们需要并发呢？
+## 为什么我们需要并发呢？
+
+* 更好地利用多核
+* CPU、内存、IO 之间速度有差异，并发可以更好地让速度块的部分不会被速度慢地拖累
 
 ## 为什么测试多线程的代码如此之难？
 
+* 多线程代码可能会使用全局变量
+* 多线程代码之间的通信
+
 ## 什么是竞态条件？举个例子
+
+当两个线程/进程竞争同一资源时，如果对资源的访问顺序敏感，就称存在竞态条件。
+
+```
+COUNTER = 1
+def add():
+    COUNTER = COUNTER + 1
+```
+
+ref:
+
+1. http://ifeve.com/race-conditions-and-critical-sections/
 
 ## 什么是死锁？举个例子
 
+当两个以上的运算单元，双方都在等待对方停止运行，以获取系统资源，但是没有一方提前退出时，就称为死锁。
+
 ## 什么情况下会导致进程饥饿？
 
+进程长时间没有分配到自己所需要的资源
+
+1. 发生死锁
+2. 调度算法有问题
+
 ## 什么是 wait free 的算法
+
+它保证了每一次调用都可以在有限的步骤内结束。避免出现进程饥饿的情况。
 
 # 分布式系统的问题
 
 ## 如何测试一个分布式系统？
 
-使用 mock 
+ref:
+
+1. http://www.cnblogs.com/yunnotes/archive/2013/04/19/3032290.html
+2. https://www.jianshu.com/p/bddfce1494d6
+
+## 什么情况下在两个系统之间使用异步通信？
+
+当被调用的系统花费时间过长的时候，可以让被调用的系统回调来通知处理结果。或者被调
+用的系统不关心处理结果。
+
+## RPC 常见的坑有哪些？
+
+比较慢？
+
+## If you are building a distributed system for scalability and robustness, what are the different things you'd think of in the case you are working in a closed and secure network environment or in geographically distributed and public system?
+## How to manage Fault Tolerance in a Web application? And in a Desktop one?
+## How to deal with failures in Distributed Systems?
+## Let's talk about the several approaches to Reconciliation after network partitions
+## What are the Fallacies of Distributed Computing?
+## When would you use Request/Reply and when Publish/Subscribe?
+## Suppose the system you are working on does not support transactionality. How would you implement it from scratch?
+
+
+# 关于软件生命周期和团队管理的问题
+
+## 什么是敏捷?
+## How would you deal with Legacy Code?
+## Say I'm your Project Manager, and I'm no expert in programming. Would you try explaining me what Legacy Code is and why should I care about code quality?
+## I'm the CEO of your company. Explain to me Kanban and convince me to invest in it.
+## What is the biggest difference between Agile and Waterfall?
+## Being a team manager, how would you deal with the problem of having too many meetings?
+## How would you manage a very late project?
+## "Individuals and interactions over processes and tools" and "Customer collaboration over contract negotiation" comprise half of the values of the Agile Manifesto. Discuss
+## Tell me what decisions would you take if you could be the CTO of your Company.
+## Are Program Managers useful?
+## Organize a development team using flexible schedules (that is, no imposed working hours) and "Take as you need" vacation policy
+## How would you manage a very high turn over and convince developers not to leave the team, without increasing compensation? What could a Company improve to make them stay?
+## What are the top 3 qualities you look for in colleagues, beyond their code?
+## What are the top 3 things you wish non-technical people knew about code?
+## Imagine your company gives you 1 month and some budget to improve your and your colleagues' daily life. What would you do?
+
+# 关于逻辑和算法的问题
+
+## 使用栈来模拟一个队列，然后使用队列来模拟一个栈。
+## 写一个会导致堆栈溢出的代码
+## 写一个尾递归版本的阶乘计算
+## 写一个逆波兰表达式的计算器
+## 你会怎样设计“磁盘碎片清理”程序
+## 写一个程序构造随机迷宫
+## 写一个会产生内存泄漏的程序
+## 生成一个随机数序列
+## 写一个简单的垃圾回收器
+## 写一个简单的消息代理(message broker)
+## 写一个简单的 web 服务器，并且把将来要实现的功能画一个路线图
+## 如何排序一个 10GB 的文件？如果是 10TB 呢？
+## 如何检测文件重复？
+
+# 关于软件架构的问题
+
+## 什么时候缓存没有用而且可能很危险？
+## 为什么事件驱动的架构能够提高可扩展性
+## 如何让代码更可读?
+## What is the difference between emergent design and evolutionary architecture?
+## Scale out vs scale up: how are they different? When to apply one, when the other?
+## How to deal with failover and user sessions?
+## What is CQRS (Command Query Responsibility Segregation)? How is it different from the oldest Command-Query Separation Principle?
+## The so called "multitier architecture" is an approach to design a client–server system aimed to keep physically and logically separated presentation, application processing, data management and other functions. The most widespread of the multitier architectures is the three-tier architecture. Would you discuss the pros and cons of such approach?
+## How would you design a software system for scalability?
+## Someone gave the name "The "C10k problem" to the problem of optimising network sockets to handle over 10.000 open connections at once. While handling 10.000 concurrent clients is not the same as handling 10.000 open connection, the context is similar. It's a tough challenge anyway, and no one is expected to know every single detail to solve it. It may be interesting to discuss the strategies you know to deal with that problem. Would you like to try?
+## How would you design a decentralized (that is, with no central server) P2P system?
+## You may recall that Common Gateway Interface (CGI) is a standard protocol for web servers to execute programs (CGI scripts) that execute as Command-line programs on a server, and that dynamically generate HTML pages when invoked by a HTTP request. Perl and PHP used to be common languages for such scripts. In CGI, a HTTP request generally causes the invocation of a new process on the server, but FastCGI, SCGI and other approaches improved the mechanism, raising the performance, with techniques such as preforking processes. Can you imagine why has't CGI eventually win, and was instead replaced with other architectural approaches?
+## How would you defend the design of your systems against Vendor Lock-in?
+## What are the disadvantages of the Publish-Subscribe pattern at scale?
+## What's new in CPUs since the 80s, and how does it affect programming?
+## In which part of the lifecycle of a software performance should be taken in consideration, and how?
+## How could a Denial of Service arise not maliciously but for a design or architectural problem?
+## What’s the relationship between Performance and Scalability?
+## When is it OK (if ever) to use tight coupling?
+## What characteristic should a system have to be Cloud Ready?
+## Does unity of design imply an aristocracy of architects? Putting it simple: can good design emerge from a collective effort of all developers?
+## What's the difference between design, architecture, functionality and aesthetic? Discuss.
+
+# 关于面向服务的架构和微服务
+
+## 在面向服务的架构中，为什么长时间的事务是不被鼓励的，而建议使用 saga 模式呢？
+## SOA 和 微服务之间的区别是？
+## 来谈谈 web services 的版本管理、版本兼容性和破坏性变更
+## Let's talk about web services versioning, version compatibility and breaking changes.
+## What's the difference between a transaction and a compensation operation in a saga, in SOA?
+## 什么时候你会觉得微服务太“微”了
+## 微服务架构的优缺点
+
+
+# 关于安全的问题
+
+How do you write secure code? In your opinion, is it one of the developer's duties, or does it require a specialized role in the company? And why?
+Why is it said that cryptography is not something you should try to invent or design yourself?
+What is two factor authentication? How would you implement it in an existing web application?
+If not carefully handled, there is always a risk of logs containing sensitive information, such as passwords. How would you deal with this?
+Write down a snippet of code affected by SQL Injection and fix it.
+How would it be possible to detect SQL Injection via static code analysis? I don't expect you to write an algorithm capable of doing this, as it is probably a huge topic, but let's discuss a general approach.
+What do you know about Cross-Site Scripting? If you don't remember it, let's review online its definition and let's discuss about it.
+What do you know about Cross-Site Forgery Attack? If you don't remember it, let's review online its definition and let's discuss about it.
+## https 是如何工作的
+
+
+## 什么是中间人攻击？为什么 https 可以避免中间人攻击？
+
+在 http 等明文协议中，中间人（代理服务器、路由器）等等可以偷听、篡改数据包，而通
+信双方都无法察觉。
+
+https 通过密钥通信，而密钥只有通信双方知道，也就无法查看或者篡改数据包。
+
+## 如何避免用户的 session 被窃取？
+
+可以使用 https
+
+ref:
+
+1. https://stackoverflow.com/questions/22880/what-is-the-best-way-to-prevent-session-hijacking
+
+# 通用问题
+
+## 为什么函数式编程很重要呢？什么时候应该使用函数式语言?
+
+函数是编程的每一个函数都是可验证的，可以证明程序是正确的。因为函数都没有副作用，
+所以也天然适合并发。
+
+## 微软、谷歌、Mozilla、搜狗、360这样的公司都怎么靠他们的浏览器挣钱呢？
+
+谷歌通过广告挣钱，通过 Chrome，谷歌可以成为默认的搜索引擎，其他家也都类似
+
+## 为什么打开一个 TCP socket 有很大的开销呢？
+
+打开一个新的 tcp 链接需要三次握手，也就是 3xRTT 的时间，相比于复用一个已经打开的
+链接的成本几乎为零。
+
+ref:
+
+1. https://serverfault.com/questions/418393/why-is-creating-a-new-tcp-connection-regarded-as-expensive
+
+## 封装对什么很重要呢？
+## 什么是实时系统，他和普通通系统有什么区别呢？
+## What's the relationship between real-time languages and heap memory allocation?
+## Immutability is the practice of setting values once, at the moment of their creation, and never changing them. How can immutability help write safer code?
+## What are the pros and cons of mutable and immutable values.
+## What's the Object-Relational impedance mismatch?
+## Which principles would you apply to define the size of a cache?
+## What's the difference between TCP and HTTP?
+## What are the tradeoffs of client-side rendering vs. server-side rendering?
+## How could you develop a reliable communication protocol based on a non-reliable one?
+## Imagine you want to remove the possibility to have null references in your preferred language: how would you achieve this goal? What consequences could this have?
+
+
+# 开放问题
+
+* 为什么人们抵制变化？
+* 像你的爷爷奶奶解释下什么是线程？
+* As a software engineer you want both to innovate and to be predictable. How those 2 goals can coexist in the same strategy?
+* What makes good code good?
+* Explain streaming and how you would implement it.
+* Say your Company gives you one week you can use to improve your and your colleagues' lifes: how would you use that week?
+* What did you learn this week?
+* There is an aesthetic element to all design. The question is, is this aesthetic element your friend or your enemy?
+* List the last 5 books you read.
+* How would you introduce Continuous Delivery in a successful, huge company for which the change from Waterfall to Continuous Delivery would be not trivial, because of the size and complexity of the business?
+* When does it make sense to reinvent the wheel?
+* Let's have a conversation about "Reinventing the wheel", the "Not Invented Here Syndrome" and the "Eating Your Own Food" practice
+* What's the next thing you would automate in your current workflow?
+* Why is writing software difficult? What makes maintaining software hard?
+* Would you prefer working on Green Field or Brown Field projects? Why?
+* What happens when you type google.com into your browser and press enter?
+* What does an Operating System do when it has got no custom code to run, and therefore it looks idle? I would like to start a discussions about interrupts, daemons, background services, polling, event handling and so on.
+* Explain Unicode/Database Transactions to a 5 year old child.
+* Defend the monolithic architecture.
+* What does it mean to be a "Professional Developer"?
+* Is developing software an art, a craftsmanship or an engineering endeavour? Your opinion.
+* "People who like this also like... ". How would you implement this feature in an e-commerce shop?
+* Why are corporations slower than startups in innovating?
+* What have you achieved recently that you are proud of?
+
+
+# 关于代码片段的问答
+
+## 下面这段 JS 的输出结果是什么？
+
+```
+function hookupevents() {
+  for (var i = 0; i < 3; i++) {
+    document.getElementById("button" + i)
+      .addEventListener("click", function() {
+        alert(i);
+      });
+  }
+}
+```
+
+回答：
+
+每一个元素点击都会提示 3，因为闭包捕获了 i，最终结果是 3
+
+## 关于类型擦除，下面这段 Java 代码的输出是什么？
+
+```
+ArrayList<Integer> li = new ArrayList<Integer>();
+ArrayList<Float> lf = new ArrayList<Float>();
+if (li.getClass() == lf.getClass()) // evaluates to true
+    System.out.println("Equal");
+```
+
+Java 中的泛型并没有把每个不同的模板参数特例化成不同的类，而是简单地把类型抹掉了。
+
+## 你能找到内存泄露吗？
+
+```
+public class Stack {
+    private Object[] elements;
+    private int size = 0;
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
+
+    public Stack() {
+        elements = new Object[DEFAULT_INITIAL_CAPACITY];
+    }
+
+    public void push(Object e) {
+        ensureCapacity();
+        elements[size++] = e;
+    }
+
+    public Object pop() {
+        if (size == 0)
+            throw new EmptyStackException();
+        return elements[--size];
+    }
+
+    /**
+     * Ensure space for at least one more element, roughly
+     * doubling the capacity each time the array needs to grow.
+     */
+    private void ensureCapacity() {
+        if (elements.length == size)
+            elements = Arrays.copyOf(elements, 2 * size + 1);
+    }
+}
+```
+
+pop 的时候没有缩小占用空间，而且也没有析构函数
+
+## if 和其他的条件语句会导致过程化的代码，请重构下面的代码，去掉 switch 语句，并且变得更加面向对象
+
+```
+public class Formatter {
+
+    private Service service;
+
+    public Formatter(Service service) {
+        this.service = service;
+    }
+
+    public String doTheJob(String theInput) {
+        String response = service.askForPermission();
+        switch (response) {
+        case "FAIL":
+            return "error";
+        case "OK":
+            return String.format("%s%s", theInput, theInput);
+        default:
+            return null;
+        }
+    }
+    }
+```
+
+重构:
+
+```
+public class Formatter {
+
+}
+```
+
+## 去掉 if 并让下面的代码更加面向对象
+
+```
+public class TheService {
+    private final FileHandler fileHandler;
+    private final FooRepository fooRepository;
+
+    public TheService(FileHandler fileHandler, FooRepository fooRepository) {
+        this.fileHandler = fileHandler;
+        this.fooRepository = fooRepository;
+    }
+
+    public String Execute(final String file) {
+
+        final String rewrittenUrl = fileHandler.getXmlFileFromFileName(file);
+        final String executionId = fileHandler.getExecutionIdFromFileName(file);
+
+        if (executionId.equals("") || rewrittenUrl.equals("")) {
+            return "";
+        }
+
+        Foo knownFoo = fooRepository.getFooByXmlFileName(rewrittenUrl);
+
+        if (knownFoo == null) {
+            return "";
+        }
+
+        return knownFoo.DoThat(file);
+    }
+    }
+```
+
+## 如何重构下面的代码
+
+```
+function()
+{
+    HRESULT error = S_OK;
+
+    if(SUCCEEDED(Operation1()))
+    {
+        if(SUCCEEDED(Operation2()))
+        {
+            if(SUCCEEDED(Operation3()))
+            {
+                if(SUCCEEDED(Operation4()))
+                {
+                }
+                else
+                {
+                    error = OPERATION4FAILED;
+                }
+            }
+            else
+            {
+                error = OPERATION3FAILED;
+            }
+        }
+        else
+        {
+            error = OPERATION2FAILED;
+        }
+    }
+    else
+    {
+        error = OPERATION1FAILED;
+    }
+
+    return error;
+}
+```
+
+这是典型的箭头形函数，可以参见酷壳的这篇文章：https://coolshell.cn/articles/17757.html
+
+
+# Bill Gates 式的问题
+This section collects some weird questions along the lines of the Manhole Cover Question.
+
+* 如果你把一个镜子放到扫描仪中会发生什么？
+* 如果有一个你的克隆人来做你的老板，你愿意为他工作吗？
+* 面试我
+* 为什么知乎上的答案比百度知道上要好？
+* Let's play a game: defend Cobol against modern languages, and try to find as many reasonable arguments as you can.
+Where will you be in 10 years?
+You are my boss and I'm fired. Inform me.
+I want to refactor a legacy system. You want to rewrite it from scratch. Argument. Then, switch our roles.
+Your boss asks you to lie to the Company. What's your reaction?
+If you could travel back in time, which advice would you give to your younger self?
