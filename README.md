@@ -791,11 +791,44 @@ ref:
 
 ## 封装对什么很重要呢？
 ## 什么是实时系统，它和普通系统有什么区别呢？
-## What's the relationship between real-time languages and heap memory allocation?
-## Immutability is the practice of setting values once, at the moment of their creation, and never changing them. How can immutability help write safer code?
-## What are the pros and cons of mutable and immutable values.
-## What's the Object-Relational impedance mismatch?
+## 实时系统和堆内存分配的关系？
+
+没查到相关资料
+
+## 不可变的值为什么有助于代码的安全性？
+
+不可变对象在并发应用种特别有用。因为他们不能改变状态，它们不能被线程干扰所中断或者被其他线程观察到内部不一致的状态。
+
+不可变对象没有副作用、更容易缓存、也不会产生 null 引用。
+
+ref:
+
+1. http://www.importnew.com/14027.html
+
+## 使用可变和不可变值都有什么利弊?
+
+使用不可变值每次都需要创建一个新的对象，可能开销很大。
+
+## 对象(OOP)和关系(SQL)之间的不匹配指的是？
+
+比如说有两种对象：
+
+1. book
+2. author
+
+每个人可能有很多本书，每本书也可能有好几个作者，所以数据库中就需要建三个表，
+`book`, `author`, `book_author_ref`, 而一些 ORM 则帮助做了这些映射。
+
 ## 如何确定缓存的大小？
+
+创建一个连续内存块，进行连贯、大量、随机的有意义内存访问。这几点缺一不可，否则不能保证整块内存被
+尽可能的放入Cache。在这种情况下，当内存块能够被整块放入Cache时，平均访问速度会显著的快。观察随
+着内存大小提高，平均访问时间的跃升点，即可估计Cache大小。
+
+ref:
+
+1. https://www.zhihu.com/question/30563694
+
 ## TCP 和 HTTP 之间有什么区别？
 
 tcp 是第四层的协议，是面向字节流的。而 http 是 第七层的协议，基于 tcp，但是是面
@@ -820,12 +853,12 @@ TCP 有编号确认机制，还可以重发。
 ## 为什么人们抵制变化？
 ## 像你的爷爷奶奶解释下什么是线程？
 ## As a software engineer you want both to innovate and to be predictable. How those 2 goals can coexist in the same strategy?
-## What makes good code good?
+## 好代码好在哪里？
 ## Explain streaming and how you would implement it.
 ## Say your Company gives you one week you can use to improve your and your colleagues' lifes: how would you use that week?
 ## What did you learn this week?
 ## There is an aesthetic element to all design. The question is, is this aesthetic element your friend or your enemy?
-## List the last 5 books you read.
+## 你最近读了哪五本书？
 ## How would you introduce Continuous Delivery in a successful, huge company for which the change from Waterfall to Continuous Delivery would be not trivial, because of the size and complexity of the business?
 ## When does it make sense to reinvent the wheel?
 ## Let's have a conversation about "Reinventing the wheel", the "Not Invented Here Syndrome" and the "Eating Your Own Food" practice
