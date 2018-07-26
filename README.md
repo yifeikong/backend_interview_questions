@@ -432,11 +432,8 @@ SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST where time>10 and command<>"Sleep"
 [mysqld]
 
 slow-query-log = 1
-
 slow-query-log-file = /var/log/mysql/mysql-slow.log
-
 long_query_time = 5
-
 log-queries-not-using-indexes = 1
 ```
 
@@ -619,11 +616,15 @@ ref:
 
 ## If you are building a distributed system for scalability and robustness, what are the different things you'd think of in the case you are working in a closed and secure network environment or in geographically distributed and public system?
 ## How to manage Fault Tolerance in a Web application? And in a Desktop one?
-## How to deal with failures in Distributed Systems?
+## 如何处理分布式系统中的错误
 ## Let's talk about the several approaches to Reconciliation after network partitions
 ## What are the Fallacies of Distributed Computing?
-## When would you use Request/Reply and when Publish/Subscribe?
-## Suppose the system you are working on does not support transactionality. How would you implement it from scratch?
+## 什么时候使用 request/reply，什么时候使用 pubsub？
+
+pubsub 支持多个消费者
+
+## 如果你使用的系统不支持原子性，你怎么实现它？
+
 
 
 # 关于软件生命周期和团队管理的问题
@@ -632,7 +633,7 @@ ref:
 ## How would you deal with Legacy Code?
 ## Say I'm your Project Manager, and I'm no expert in programming. Would you try explaining me what Legacy Code is and why should I care about code quality?
 ## I'm the CEO of your company. Explain to me Kanban and convince me to invest in it.
-## What is the biggest difference between Agile and Waterfall?
+## 敏捷和瀑布式开发有什么区别？
 ## Being a team manager, how would you deal with the problem of having too many meetings?
 ## How would you manage a very late project?
 ## "Individuals and interactions over processes and tools" and "Customer collaboration over contract negotiation" comprise half of the values of the Agile Manifesto. Discuss
@@ -709,8 +710,13 @@ PubSub 本质上是一个多生产者多消费者的队列。当消息量大的�
 
 # 关于安全的问题
 
-## How do you write secure code? In your opinion, is it one of the developer's duties, or does it require a specialized role in the company? And why?
-## Why is it said that cryptography is not something you should try to invent or design yourself?
+## 如何写出安全的代码？
+
+
+
+## 为什么说不要自己去发明一套加密系统？
+
+https://security.stackexchange.com/questions/18197/why-shouldnt-we-roll-our-own
 
 ## 什么是两步验证，如何实现？
 
@@ -726,7 +732,12 @@ ref:
 
 ## 写一个会受到 SQL 注入影响的代码，然后修复它
 
-## How would it be possible to detect SQL Injection via static code analysis? I don't expect you to write an algorithm capable of doing this, as it is probably a huge topic, but let's discuss a general approach.
+```
+# 如果 user_id = '1; drop table users;'
+cursor.execute('select * from users where id = %s', % (user_id))
+```
+
+## 如何通过静态代码检查消除 SQL 注入的隐患？
 
 ## 什么是 XSS，如何阻止？
 
@@ -851,7 +862,7 @@ TCP 有编号确认机制，还可以重发。
 # 开放问题
 
 ## 为什么人们抵制变化？
-## 像你的爷爷奶奶解释下什么是线程？
+## 向你的爷爷奶奶解释下什么是线程？
 ## As a software engineer you want both to innovate and to be predictable. How those 2 goals can coexist in the same strategy?
 ## 好代码好在哪里？
 ## Explain streaming and how you would implement it.
@@ -867,11 +878,14 @@ TCP 有编号确认机制，还可以重发。
 ## Would you prefer working on Green Field or Brown Field projects? Why?
 ## What happens when you type google.com into your browser and press enter?
 ## What does an Operating System do when it has got no custom code to run, and therefore it looks idle? I would like to start a discussions about interrupts, daemons, background services, polling, event handling and so on.
-## Explain Unicode/Database Transactions to a 5 year old child.
+## 向一个五岁的孩子解释 Unicode 和数据库事物。
 ## Defend the monolithic architecture.
 ## What does it mean to be a "Professional Developer"?
 ## Is developing software an art, a craftsmanship or an engineering endeavour? Your opinion.
-## "People who like this also like... ". How would you implement this feature in an e-commerce shop?
+## "喜欢这个的顾客也喜欢XXX". 你怎样实现这个功能？
+
+协同过滤
+
 ## Why are corporations slower than startups in innovating?
 ## What have you achieved recently that you are proud of?
 
@@ -1058,9 +1072,9 @@ This section collects some weird questions along the lines of the Manhole Cover 
 ## 如果有一个你的克隆人来做你的老板，你愿意为他工作吗？
 ## 面试我
 ## 为什么知乎上的答案比百度知道上要好？
-## Let's play a game: defend Cobol against modern languages, and try to find as many reasonable arguments as you can.
+## 为 Cobol 是一个现代的语言辩护
 ## 十年后你想变成怎样？
 ## 你是我的老板，然后把我炒了鱿鱼，通知我
-## I want to refactor a legacy system. You want to rewrite it from scratch. Argument. Then, switch our roles.
-## Your boss asks you to lie to the Company. What's your reaction?
+## 我想重构一个系统，你想从头重写，和我讨论一下，然后我们互换角色。
+## 你的上司让你对公司说谎，你会怎么办？
 ## 如果你可以穿越回过去，你会给自己什么建议？
