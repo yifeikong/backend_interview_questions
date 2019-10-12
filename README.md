@@ -614,7 +614,7 @@ ref:
 
 比较慢？
 
-## If you are building a distributed system for scalability and robustness, what are the different things you'd think of in the case you are working in a closed and secure network environment or in geographically distributed and public system?
+## 假设你要构建一个可扩展和健壮的分布式系统。如果你需要在一个封闭安全的系统的系统中构建和在一个地理上隔离的公开环境，有什么区别呢？
 ## How to manage Fault Tolerance in a Web application? And in a Desktop one?
 ## 如何处理分布式系统中的错误
 ## Let's talk about the several approaches to Reconciliation after network partitions
@@ -691,7 +691,7 @@ PubSub 本质上是一个多生产者多消费者的队列。当消息量大的�
 ## What's new in CPUs since the 80s, and how does it affect programming?
 ## 在软件声明周期的哪个部分应该考虑性能？怎么做？
 ## How could a Denial of Service arise not maliciously but for a design or architectural problem?
-## What’s the relationship between Performance and Scalability?
+## 性能和可靠性之间的关系是怎样的？
 ## When is it OK (if ever) to use tight coupling?
 ## What characteristic should a system have to be Cloud Ready?
 ## Does unity of design imply an aristocracy of architects? Putting it simple: can good design emerge from a collective effort of all developers?
@@ -711,8 +711,6 @@ PubSub 本质上是一个多生产者多消费者的队列。当消息量大的�
 # 关于安全的问题
 
 ## 如何写出安全的代码？
-
-
 
 ## 为什么说不要自己去发明一套加密系统？
 
